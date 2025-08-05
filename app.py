@@ -10,7 +10,7 @@ from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
 # -------------------- Load Secrets from Azure Key Vault --------------------
 # Set the vault name as an environment variable or replace directly here
-KEY_VAULT_NAME = "key-vault-ryuta"
+KEY_VAULT_NAME = "key-vault-ryuta-new"
 KV_URI = f"https://{KEY_VAULT_NAME}.vault.azure.net"
 
 # Use Azure Managed Identity / Environment credentials
