@@ -6,12 +6,24 @@ from botbuilder.schema import Activity, ActivityTypes
 from aiohttp import web
 import aiohttp
 
-# Initialize the bot adapter Hardcoded credentials, USE KEY VAULT
-settings = BotFrameworkAdapterSettings(app_id="x", app_password="x")
-adapter = BotFrameworkAdapter(settings)
+from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
+# -------------------- Load Secrets from Azure Key Vault --------------------
+# Set the vault name as an environment variable or replace directly here
+KEY_VAULT_NAME = "key-vault-ryuta"
+KV_URI = f"https://{KEY_VAULT_NAME}.vault.azure.net"
 
-# Hardcoded Token, USE KEY VAULT
-DATABRICKS_TOKEN = "x"
+# Use Azure Managed Identity / Environment credentials
+credential = DefaultAzureCredential()
+client = SecretClient(vault_url=KV_URI, credential=credential)
+# Fetch secrets by name
+APP_ID = client.get_secret("Bot-App-Id").value
+APP_PASSWORD = client.get_secret("Bot-App-Password").value
+DATABRICKS_TOKEN = client.get_secret("Databricks-Token").value
+
+# Initialize the bot adapter Hardcoded credentials, USE KEY VAULT
+settings = BotFrameworkAdapterSettings(app_id=APP_ID, app_password=APP_PASSWORD)
+adapter = BotFrameworkAdapter(settings)
 
 async def messages(req: web.Request) -> web.Response:
     body = await req.json()
@@ -21,9 +33,9 @@ async def messages(req: web.Request) -> web.Response:
     async def turn_handler(turn_context: TurnContext):
         if activity.type == ActivityTypes.message:
             try:
-                response = await query_llama3_model(turn_context.activity.text)
+                response = await query_model(turn_context.activity.text)
             except Exception as e:
-                logging.error(f"Error in query_llama3_model: {e}")
+                logging.error(f"Error in query_model: {e}")
                 response = "Error querying the model."
             await turn_context.send_activity(Activity(type=ActivityTypes.message, text=response))
     
@@ -38,8 +50,8 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 3978))
     web.run_app(app, host=host, port=port)
 
-async def query_llama3_model(user_input):
-    url = "https://x"
+async def query_model(user_input):
+    url = "https://adb-984752964297111.11.azuredatabricks.net/serving-endpoints/databricks-claude-3-7-sonnet/invocations"
     headers = {
         "Authorization": f"Bearer {DATABRICKS_TOKEN}",
         "Content-Type": "application/json"
