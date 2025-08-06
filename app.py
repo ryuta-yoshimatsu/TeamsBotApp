@@ -17,8 +17,8 @@ KV_URI = f"https://{KEY_VAULT_NAME}.vault.azure.net"
 credential = DefaultAzureCredential()
 client = SecretClient(vault_url=KV_URI, credential=credential)
 # Fetch secrets by name
-APP_ID = client.get_secret("Bot-App-Id").value
-APP_PASSWORD = client.get_secret("Bot-App-Password").value
+APP_ID = client.get_secret("Web-App-Id").value
+APP_PASSWORD = client.get_secret("Web-App-Password").value
 DATABRICKS_TOKEN = client.get_secret("Databricks-Token").value
 
 # Initialize the bot adapter Hardcoded credentials, USE KEY VAULT
