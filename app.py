@@ -1,13 +1,15 @@
 import os
 import logging
 import requests
-from botbuilder.core import BotFrameworkAdapter, TurnContext, BotFrameworkAdapterSettings
+from botbuilder.core import BotFrameworkAdapter, TurnContext, BotFrameworkAdapterSettings, ConfigurationCredentialProvider
 from botbuilder.schema import Activity, ActivityTypes
 from aiohttp import web
 import aiohttp
+import os
 
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
+
 # -------------------- Load Secrets from Azure Key Vault --------------------
 # Set the vault name as an environment variable or replace directly here
 KEY_VAULT_NAME = "kv-ryuta-teams-bot"
@@ -16,14 +18,26 @@ KV_URI = f"https://{KEY_VAULT_NAME}.vault.azure.net"
 # Use Azure Managed Identity / Environment credentials
 credential = DefaultAzureCredential()
 client = SecretClient(vault_url=KV_URI, credential=credential)
+
 # Fetch secrets by name
-APP_ID = client.get_secret("Web-App-Id").value
-APP_PASSWORD = client.get_secret("Web-App-Password").value
+APP_ID = client.get_secret("App-Id").value
+APP_PASSWORD = client.get_secret("App-Password").value
+APP_TENANR_ID = client.get_secret("App-Tenant-Id").value
 DATABRICKS_TOKEN = client.get_secret("Databricks-Token").value
 
 # Initialize the bot adapter Hardcoded credentials, USE KEY VAULT
-settings = BotFrameworkAdapterSettings(app_id=APP_ID, app_password=APP_PASSWORD)
-adapter = BotFrameworkAdapter(settings)
+#settings = BotFrameworkAdapterSettings(app_id=APP_ID, app_password=APP_PASSWORD)
+#adapter = BotFrameworkAdapter(settings)
+
+class Settings:
+    MicrosoftAppId       = APP_ID
+    MicrosoftAppPassword = APP_PASSWORD
+    MicrosoftAppType     = "SingleTenant"
+    MicrosoftAppTenantId = APP_TENANR_ID
+
+settings = Settings()
+credential_provider = ConfigurationCredentialProvider(settings.__dict__)
+adapter = BotFrameworkHttpAdapter(credential_provider)
 
 async def messages(req: web.Request) -> web.Response:
     body = await req.json()
