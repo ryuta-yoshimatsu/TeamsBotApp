@@ -1,7 +1,7 @@
 import os
 import logging
 import requests
-from botbuilder.core import BotFrameworkAdapter, TurnContext, BotFrameworkAdapterSettings, ConfigurationCredentialProvider
+from botbuilder.core import BotFrameworkAdapter, TurnContext, BotFrameworkAdapterSettings
 from botbuilder.schema import Activity, ActivityTypes
 from aiohttp import web
 import aiohttp
@@ -22,22 +22,11 @@ client = SecretClient(vault_url=KV_URI, credential=credential)
 # Fetch secrets by name
 APP_ID = client.get_secret("App-Id").value
 APP_PASSWORD = client.get_secret("App-Password").value
-APP_TENANR_ID = client.get_secret("App-Tenant-Id").value
 DATABRICKS_TOKEN = client.get_secret("Databricks-Token").value
 
 # Initialize the bot adapter Hardcoded credentials, USE KEY VAULT
-#settings = BotFrameworkAdapterSettings(app_id=APP_ID, app_password=APP_PASSWORD)
-#adapter = BotFrameworkAdapter(settings)
-
-class Settings:
-    MicrosoftAppId       = APP_ID
-    MicrosoftAppPassword = APP_PASSWORD
-    MicrosoftAppType     = "SingleTenant"
-    MicrosoftAppTenantId = APP_TENANR_ID
-
-settings = Settings()
-credential_provider = ConfigurationCredentialProvider(settings.__dict__)
-adapter = BotFrameworkHttpAdapter(credential_provider)
+settings = BotFrameworkAdapterSettings(app_id=APP_ID, app_password=APP_PASSWORD)
+adapter = BotFrameworkAdapter(settings)
 
 async def messages(req: web.Request) -> web.Response:
     body = await req.json()
