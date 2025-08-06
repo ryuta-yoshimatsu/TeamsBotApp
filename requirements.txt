@@ -27,5 +27,5 @@ six==1.16.0
 typing_extensions==4.12.2
 urllib3==1.26.19
 yarl==1.9.4
-azure-identity==1.23.1
-azure-keyvault-secrets==4.10.0
+azure-identity
+azure-keyvault-secrets
