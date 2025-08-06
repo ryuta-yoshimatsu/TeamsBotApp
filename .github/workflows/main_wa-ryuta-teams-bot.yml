@@ -58,4 +58,4 @@ jobs:
         with:
           app-name: 'wa-ryuta-teams-bot'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_BD335C353B0742A0AB83DCF751ECF7B3 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_8632881FD65B4CC9B9295A24475EE281 }}
